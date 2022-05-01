@@ -7,6 +7,7 @@ import IslandPackage.items.plants.Grass;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Island {
@@ -16,12 +17,15 @@ public class Island {
     private final ArrayList<ArrayList<Location>> locations;
     private int SecondsToUpdate = 10;
     private int maxEntityInLocation = 5;
+    private List<Class<? extends Entity>> classes = new ArrayList<>();
     private Map<Class<? extends Entity>, Map<Entity.Characteristics, ? extends Number>> mapCountEntityInLocation = new HashMap<>();
     private Map<Class<? extends Entity>, Map<Class<? extends Entity>, Integer>> probabilityOfConsumption;
 
     public Island(int height, int width) {
         this.height = height;
-        this.width = width;
+        this.width  = width;
+        initializeClasses();
+        setDefaultMapCountEntityInLocation();
         this.locations = new ArrayList<>(this.height);
         for (int i = 0; i < this.height; i++) {
             this.locations.add(new ArrayList<Location>(width));
@@ -32,95 +36,121 @@ public class Island {
         }
 
     }
+
+    private void initializeClasses(){
+        classes.add(Wolf.class);
+        classes.add(Snake.class);
+        classes.add(Fox.class);
+        classes.add(Bear.class);
+        classes.add(Eagle.class);
+        classes.add(Horse.class);
+        classes.add(Deer.class);
+        classes.add(Rabbit.class);
+        classes.add(Hamster.class);
+        classes.add(Goat.class);
+        classes.add(Sheep.class);
+        classes.add(Kangaroo.class);
+        classes.add(Cow.class);
+        classes.add(Duck.class);
+        classes.add(Caterpillar.class);
+        classes.add(Grass.class);
+    }
+
+    public List getClasses(){
+        return classes;
+    }
     public void setDefaultMapCountEntityInLocation(){
-        mapCountEntityInLocation.put(Wolf.class,        30);
-        mapCountEntityInLocation.put(Snake.class,       123);
-        mapCountEntityInLocation.put(Fox.class,         50);
-        mapCountEntityInLocation.put(Bear.class,        7);
-        mapCountEntityInLocation.put(Eagle.class,       166);
-        mapCountEntityInLocation.put(Horse.class,       23);
-        mapCountEntityInLocation.put(Deer.class,        41);
-        mapCountEntityInLocation.put(Rabbit.class,      750);
-        mapCountEntityInLocation.put(Hamster.class,     10000);
-        mapCountEntityInLocation.put(Goat.class,        107);
-        mapCountEntityInLocation.put(Sheep.class,       156);
-        mapCountEntityInLocation.put(Kangaroo.class,    149);
-        mapCountEntityInLocation.put(Cow.class,         20);
-        mapCountEntityInLocation.put(Duck.class,        500);
-        mapCountEntityInLocation.put(Caterpillar.class, 10000);
-        mapCountEntityInLocation.put(Grass.class,       10000);
 
         Map characteristics;
 
-        //Wolf characteristics
-        mapCountEntityInLocation.put(Wolf.class,       new HashMap<>());
+        mapCountEntityInLocation.put(Wolf.class, new HashMap<>());
         characteristics = mapCountEntityInLocation.get(Wolf.class);
-        characteristics.put(Entity.Characteristics.WEIGHT,              50);
-        characteristics.put(Entity.Characteristics.MAXCOUNTINLOCATION,  30);
-        characteristics.put(Entity.Characteristics.SPEED,               3);
-        characteristics.put(Entity.Characteristics.COUNTNEDDEDFOOD,     8);
-        characteristics.put(Entity.Characteristics.COUNTHUNGRYMOVE,     10);
+        setDefaultcharacteristics(characteristics, 50, 30, 8, 3, 10);
 
-        //Snake characteristics
-        mapCountEntityInLocation.put(Snake.class,       new HashMap<>());
+        mapCountEntityInLocation.put(Snake.class, new HashMap<>());
         characteristics = mapCountEntityInLocation.get(Snake.class);
-        characteristics.put(Entity.Characteristics.WEIGHT,              2);
-        characteristics.put(Entity.Characteristics.MAXCOUNTINLOCATION,  123);
-        characteristics.put(Entity.Characteristics.SPEED,               1);
-        characteristics.put(Entity.Characteristics.COUNTNEDDEDFOOD,     0.3);
-        characteristics.put(Entity.Characteristics.COUNTHUNGRYMOVE,     15);
+        setDefaultcharacteristics(characteristics, 2, 123, 1, 0.3, 15);
 
-        //Fox characteristics
-        mapCountEntityInLocation.put(Fox.class,       new HashMap<>());
+        mapCountEntityInLocation.put(Fox.class, new HashMap<>());
         characteristics = mapCountEntityInLocation.get(Fox.class);
-        characteristics.put(Entity.Characteristics.WEIGHT,              4);
-        characteristics.put(Entity.Characteristics.MAXCOUNTINLOCATION,  50);
-        characteristics.put(Entity.Characteristics.SPEED,               3);
-        characteristics.put(Entity.Characteristics.COUNTNEDDEDFOOD,     1);
-        characteristics.put(Entity.Characteristics.COUNTHUNGRYMOVE,     8);
+        setDefaultcharacteristics(characteristics, 4, 50, 3, 1, 8);
 
-        //Bear characteristics
-        mapCountEntityInLocation.put(Bear.class,       new HashMap<>());
+        mapCountEntityInLocation.put(Bear.class, new HashMap<>());
         characteristics = mapCountEntityInLocation.get(Bear.class);
-        characteristics.put(Entity.Characteristics.WEIGHT,              250);
-        characteristics.put(Entity.Characteristics.MAXCOUNTINLOCATION,  7);
-        characteristics.put(Entity.Characteristics.SPEED,               2);
-        characteristics.put(Entity.Characteristics.COUNTNEDDEDFOOD,     38);
-        characteristics.put(Entity.Characteristics.COUNTHUNGRYMOVE,     15);
+        setDefaultcharacteristics(characteristics, 250, 7, 2, 38, 15);
 
-        //Eagle characteristics
-        mapCountEntityInLocation.put(Eagle.class,       new HashMap<>());
+        mapCountEntityInLocation.put(Eagle.class, new HashMap<>());
         characteristics = mapCountEntityInLocation.get(Eagle.class);
-        characteristics.put(Entity.Characteristics.WEIGHT,              6);
-        characteristics.put(Entity.Characteristics.MAXCOUNTINLOCATION,  166);
-        characteristics.put(Entity.Characteristics.SPEED,               4);
-        characteristics.put(Entity.Characteristics.COUNTNEDDEDFOOD,     1);
+        setDefaultcharacteristics(characteristics, 6, 166, 4, 1, 5);
 
-        //Horse characteristics
-        mapCountEntityInLocation.put(Horse.class,       new HashMap<>());
+        mapCountEntityInLocation.put(Horse.class, new HashMap<>());
         characteristics = mapCountEntityInLocation.get(Horse.class);
-        characteristics.put(Entity.Characteristics.WEIGHT,              6);
-        characteristics.put(Entity.Characteristics.MAXCOUNTINLOCATION,  166);
-        characteristics.put(Entity.Characteristics.SPEED,               4);
-        characteristics.put(Entity.Characteristics.COUNTNEDDEDFOOD,     1);
-        characteristics.put(Entity.Characteristics.COUNTHUNGRYMOVE,     5);
+        setDefaultcharacteristics(characteristics, 300, 23, 3, 45, 5);
+
+        mapCountEntityInLocation.put(Deer.class, new HashMap<>());
+        characteristics = mapCountEntityInLocation.get(Deer.class);
+        setDefaultcharacteristics(characteristics, 170, 41, 3, 45, 5);
+
+        mapCountEntityInLocation.put(Rabbit.class, new HashMap<>());
+        characteristics = mapCountEntityInLocation.get(Rabbit.class);
+        setDefaultcharacteristics(characteristics, 3, 750, 3, 26, 4);
+
+        mapCountEntityInLocation.put(Hamster.class, new HashMap<>());
+        characteristics = mapCountEntityInLocation.get(Hamster.class);
+        setDefaultcharacteristics(characteristics, 0.03, 10000, 1, 0.0075, 3);
+
+        mapCountEntityInLocation.put(Goat.class, new HashMap<>());
+        characteristics = mapCountEntityInLocation.get(Goat.class);
+        setDefaultcharacteristics(characteristics, 65, 107, 1, 10, 5);
+
+        mapCountEntityInLocation.put(Sheep.class, new HashMap<>());
+        characteristics = mapCountEntityInLocation.get(Sheep.class);
+        setDefaultcharacteristics(characteristics, 45, 156, 1, 7, 5);
+
+        mapCountEntityInLocation.put(Kangaroo.class, new HashMap<>());
+        characteristics = mapCountEntityInLocation.get(Kangaroo.class);
+        setDefaultcharacteristics(characteristics, 47, 149, 2, 7, 8);
+
+        mapCountEntityInLocation.put(Cow.class, new HashMap<>());
+        characteristics = mapCountEntityInLocation.get(Cow.class);
+        setDefaultcharacteristics(characteristics, 350, 20, 1, 53, 4);
+
+        mapCountEntityInLocation.put(Duck.class, new HashMap<>());
+        characteristics = mapCountEntityInLocation.get(Duck.class);
+        setDefaultcharacteristics(characteristics, 1, 500, 1, 0.15, 4);
+
+        mapCountEntityInLocation.put(Caterpillar.class, new HashMap<>());
+        characteristics = mapCountEntityInLocation.get(Caterpillar.class);
+        setDefaultcharacteristics(characteristics, 0.01,10000, 1, 0.0025,  1);
+
+        mapCountEntityInLocation.put(Grass.class, new HashMap<>());
+        characteristics = mapCountEntityInLocation.get(Grass.class);
+        setDefaultcharacteristics(characteristics, 1, 10000, 0, 0, 0);
 
 
+    }
+
+    private void setDefaultcharacteristics(Map characteristics, double weight, int maxCountInLocation, double speed, double countNeddedFood, double countHungryMove){
+        characteristics.put(Entity.Characteristics.WEIGHT,              weight);
+        characteristics.put(Entity.Characteristics.MAXCOUNTINLOCATION,  maxCountInLocation);
+        characteristics.put(Entity.Characteristics.SPEED,               speed);
+        characteristics.put(Entity.Characteristics.COUNTNEDDEDFOOD,     countNeddedFood);
+        characteristics.put(Entity.Characteristics.COUNTHUNGRYMOVE,     countHungryMove);
     }
 
     public void setMapCountEntityInLocation(Map mapCountEntityInLocation){
        this.mapCountEntityInLocation = mapCountEntityInLocation;
     }
 
-    public void setCountEntityInLocationForClass(Class<? extends Entity> entityClass, Integer count){
-        mapCountEntityInLocation.put(entityClass, count);
+    public void setCountEntityInLocationForClass(Class<? extends Entity> entityClass, Map characteristics){
+        mapCountEntityInLocation.put(entityClass, characteristics);
     }
 
     public Map getMapCountEntityInLocation(){
         return mapCountEntityInLocation;
     }
 
-    public Integer getEntryCountEntityInLocationForClass(Class<? extends Entity> entityClass){
+    public Map getEntryCountEntityInLocationForClass(Class<? extends Entity> entityClass){
         return mapCountEntityInLocation.get(entityClass);
     }
 }
