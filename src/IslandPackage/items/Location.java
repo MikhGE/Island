@@ -4,10 +4,7 @@ import IslandPackage.Island;
 import IslandPackage.items.animals.Animal;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -69,4 +66,5 @@ public class Location implements Callable<String> {
             }
         }
     }
+
 }

@@ -16,7 +16,7 @@ public class Island {
     private final int width;
     private final ArrayList<ArrayList<Location>> locations;
     private int SecondsToUpdate = 10;
-    private int maxEntityInLocation = 5;
+    private int maxEntityInLocation = 1000;
     private List<Class<? extends Entity>> classes = new ArrayList<>();
     private Map<Class<? extends Entity>, Map<Entity.Characteristics, ? extends Number>> mapCountEntityInLocation = new HashMap<>();
     private Map<Class<? extends Entity>, Map<Class<? extends Entity>, Integer>> probabilityOfConsumption;
