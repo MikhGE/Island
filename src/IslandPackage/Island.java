@@ -9,30 +9,47 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
-public class Island {
+public class Island implements Runnable{
 
+
+    public static int SecondsToUpdate = 10;
+
+    private long days = 1L;
     private final int height;
     private final int width;
-    private final ArrayList<ArrayList<Location>> locations;
-    private int SecondsToUpdate = 10;
+    private List<List<Location>> locations;
+    private List<Location> listOfLocation = new ArrayList<>();
+    private List<Future<String>> listOfFuture;
     private int maxEntityInLocation = 1000;
     private List<Class<? extends Entity>> classes = new ArrayList<>();
     private Map<Class<? extends Entity>, Map<Entity.Characteristics, ? extends Number>> mapCountEntityInLocation = new HashMap<>();
     private Map<Class<? extends Entity>, Map<Class<? extends Entity>, Integer>> probabilityOfConsumption;
 
     public Island(int height, int width) {
+
         this.height = height;
         this.width  = width;
         initializeClasses();
         setDefaultMapCountEntityInLocation();
+        ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
         this.locations = new ArrayList<>(this.height);
-        for (int i = 0; i < this.height; i++) {
+        for (int h = 0; h < this.height; h++) {
             this.locations.add(new ArrayList<Location>(width));
-            for (int j = 0; j < this.width; j++) {
-                    this.locations.get(i).add(new Location(maxEntityInLocation, this));
+            for (int w = 0; w < this.width; w++) {
+                Location newLocation = new Location(maxEntityInLocation, this, h, w);
+                    this.locations.get(h).add(newLocation);
+                listOfLocation.add(newLocation);
             }
-
+        }
+        try {
+            listOfFuture = cachedThreadPool.invokeAll(listOfLocation);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
     }
@@ -59,6 +76,7 @@ public class Island {
     public List getClasses(){
         return classes;
     }
+
     public void setDefaultMapCountEntityInLocation(){
 
         Map characteristics;
@@ -152,5 +170,24 @@ public class Island {
 
     public Map getEntryCountEntityInLocationForClass(Class<? extends Entity> entityClass){
         return mapCountEntityInLocation.get(entityClass);
+    }
+
+    public long getDays(){
+        return days;
+    }
+
+    @Override
+    public void run() {
+        days++;
+        for (Future<String> stringFuture : listOfFuture) {
+            try {
+                System.out.println(stringFuture.get());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 }

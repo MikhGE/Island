@@ -2,20 +2,26 @@ package IslandPackage.items;
 
 import IslandPackage.Island;
 import IslandPackage.items.animals.Animal;
+import IslandPackage.items.plants.Plant;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class Location implements Callable<String> {
+public class Location implements Callable<String>, Comparable {
 
     private final Island island;
-    private final int maxEntityInLocation;
-    private ArrayList<Entity> entities;
+    private final int locationH;
+    private final int locationW;
+    private final long maxEntityInLocation;
+    private final ArrayList<Entity> entities;
+    public final Object entitiesLock = new Object();
 
-    public Location(int maxEntityInLocation, Island island) {
+    public Location(int maxEntityInLocation, Island island, int locationH, int locationW) {
         this.island                 = island;
+        this.locationH              = locationH;
+        this.locationW              = locationW;
         this.maxEntityInLocation    = maxEntityInLocation;
         this.entities               = new ArrayList<>();
         initializeLocation();
@@ -25,11 +31,43 @@ public class Location implements Callable<String> {
     public String call() throws Exception {
         for (Entity entity : entities) {
             if(Animal.class.isAssignableFrom(entity.getClass())){
-                int randomInt = ThreadLocalRandom.current().nextInt();
-
+                int whatToDo = ThreadLocalRandom.current().nextInt(4);
+                switch (whatToDo){
+                    case (0):
+                        ((Animal) entity).eat();
+                        break;
+                    case (1):
+                        Location newLocation = calculateNewLocation();
+                        ((Animal) entity).move(newLocation);
+                        break;
+                    case (2):
+                        ((Animal) entity).multiply();
+                        break;
+                    case (3):
+                        ((Animal) entity).die();
+                        break;
+                    default:
+                        continue;
+                }
+            }
+            else if(Plant.class.isAssignableFrom(entity.getClass())){
+                ((Plant) entity).growUp();
             }
         }
         return "Все нормально";
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        if(!(o instanceof Location))
+            throw new NullPointerException("Переданный объект не явяется локацией");
+        Location location = (Location) o;
+        if(this.getLocationH()>location.getLocationH())
+            return 1;
+        if(this.getLocationW()>location.getLocationW())
+            return 1;
+
+        return -1;
     }
 
     private void initializeLocation() {
@@ -41,16 +79,17 @@ public class Location implements Callable<String> {
             if(entities.size() == maxEntityInLocation)
                 break;
             int index = randomIndex.nextInt(countClasses);
-            Class entityClass = classes.get(index);
-            Map characteristics  = mapCountEntityInLocation.get(entityClass);
-            Integer countEntityInLocation = (Integer) characteristics.get(Entity.Characteristics.MAXCOUNTINLOCATION);
-            Random randomCountInLocation = new Random();
+            Class entityClass       = classes.get(index);
+            Map characteristics     = mapCountEntityInLocation.get(entityClass);
+            Integer countEntityInLocation   = (Integer) characteristics.get(Entity.Characteristics.MAXCOUNTINLOCATION);
+            Random randomCountInLocation    = new Random();
             int countInLocation = randomCountInLocation.nextInt(countEntityInLocation);
             for (int j = 0; j < countInLocation; j++) {
                 if(entities.size() == maxEntityInLocation)
                     break;
                 try {
                     Entity entity = (Entity) Class.forName(entityClass.getName()).getDeclaredConstructor().newInstance();
+                    entity.setLocation(this);
                     entities.add(entity);
                 } catch (InstantiationException e) {
                     e.printStackTrace();
@@ -67,4 +106,32 @@ public class Location implements Callable<String> {
         }
     }
 
+    public long getEntitiesSize(){
+        return entities.size();
+    }
+
+    public long getMaxEntityInLocation(){
+        return maxEntityInLocation;
+    }
+
+    public int getLocationH() {
+        return locationH;
+    }
+
+    public int getLocationW() {
+        return locationW;
+    }
+
+    private Location calculateNewLocation(){
+        
+        return null;
+    }
+    public void moveEntity(Entity entity){
+        entities.add(entity);
+    }
+
+    public void leaveLocation(Entity entity){
+        if(entities.contains(entity))
+            entities.remove(entity);
+    }
 }
