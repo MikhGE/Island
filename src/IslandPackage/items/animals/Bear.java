@@ -4,15 +4,6 @@ import IslandPackage.items.Location;
 
 public class Bear extends Predator{
 
-    @Override
-    public void eat() {
-
-    }
-
-    @Override
-    public boolean move(Location location) {
-        return false;
-    }
 
     @Override
     public void multiply() {

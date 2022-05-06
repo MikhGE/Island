@@ -6,6 +6,11 @@ import IslandPackage.items.Location;
 public abstract class Animal extends Entity implements AnimalInterface {
 
     @Override
+    public String toString() {
+        return getClass().getSimpleName();
+    }
+
+    @Override
     public boolean move(Location newLocation) {
         boolean moveSuccessful = false;
         Location selfLocation   = this.getLocation();
@@ -22,5 +27,16 @@ public abstract class Animal extends Entity implements AnimalInterface {
             }
         }
         return moveSuccessful;
+    }
+
+    @Override
+    public void eat() {
+        if(Predator.class.isAssignableFrom(this.getClass()))
+        {
+            System.out.println(this.getClass().getSimpleName() + " поел!");
+        }
+        else{
+            System.out.println(this.getClass().getSimpleName() + " поел!");
+        }
     }
 }

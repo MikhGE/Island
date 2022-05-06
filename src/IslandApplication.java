@@ -9,11 +9,8 @@ public class IslandApplication {
     public static void main(String[] args) {
 
         ScheduledExecutorService sheduledService = Executors.newScheduledThreadPool(1);
-        Island island = new Island(100, 20);
-        sheduledService.scheduleAtFixedRate(island,5, 10, TimeUnit.SECONDS);
-        while (true){
-            System.out.println(island.getDays());
-        }
+        Island island = new Island(2, 2);
+        sheduledService.scheduleAtFixedRate(island,5, 5, TimeUnit.SECONDS);
 
     }
 

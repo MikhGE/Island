@@ -9,40 +9,48 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 public class Island implements Runnable{
 
 
     public static int SecondsToUpdate = 10;
 
-    private long days = 1L;
+    //Количество пройденных дней
+    private long days   = 1L;
+    //Высота и ширина острова
     private final int height;
     private final int width;
+    //Матрица локаций для организации вывода и перемещения сущностей
     private List<List<Location>> locations;
+    //Список локаций для запуска пула потоков
     private List<Location> listOfLocation = new ArrayList<>();
-    private List<Future<String>> listOfFuture;
+    //Список задач
+    private List<Future<Location>> listOfFuture;
+    //Пул потоков
+    private ExecutorService cachedThreadPool;
+    //Максимальное количество сущностей в локации
     private int maxEntityInLocation = 1000;
+    //Список классов сущностей
     private List<Class<? extends Entity>> classes = new ArrayList<>();
-    private Map<Class<? extends Entity>, Map<Entity.Characteristics, ? extends Number>> mapCountEntityInLocation = new HashMap<>();
-    private Map<Class<? extends Entity>, Map<Class<? extends Entity>, Integer>> probabilityOfConsumption;
+    //Карта характеристик классов
+    private Map<Class<? extends Entity>, Map<Entity.Characteristics, ? extends Number>> mapOfCharacteristics = new HashMap<>();
+    //Карта вероятностей классов
+    private Map<Class<? extends Entity>, Map<Class<? extends Entity>, Integer>> MapProbabilityOfConsumption = new HashMap<>();
 
     public Island(int height, int width) {
 
         this.height = height;
         this.width  = width;
         initializeClasses();
-        setDefaultMapCountEntityInLocation();
-        ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
+        setDefaultMapOfCharacteristics();
+        cachedThreadPool = Executors.newCachedThreadPool();
         this.locations = new ArrayList<>(this.height);
         for (int h = 0; h < this.height; h++) {
-            this.locations.add(new ArrayList<Location>(width));
+            this.locations.add(new ArrayList<>(width));
             for (int w = 0; w < this.width; w++) {
                 Location newLocation = new Location(maxEntityInLocation, this, h, w);
-                    this.locations.get(h).add(newLocation);
+                this.locations.get(h).add(newLocation);
                 listOfLocation.add(newLocation);
             }
         }
@@ -77,78 +85,77 @@ public class Island implements Runnable{
         return classes;
     }
 
-    public void setDefaultMapCountEntityInLocation(){
+    public void setDefaultMapOfCharacteristics(){
 
         Map characteristics;
 
-        mapCountEntityInLocation.put(Wolf.class, new HashMap<>());
-        characteristics = mapCountEntityInLocation.get(Wolf.class);
+        mapOfCharacteristics.put(Wolf.class, new HashMap<>());
+        characteristics = mapOfCharacteristics.get(Wolf.class);
         setDefaultcharacteristics(characteristics, 50, 30, 8, 3, 10);
 
-        mapCountEntityInLocation.put(Snake.class, new HashMap<>());
-        characteristics = mapCountEntityInLocation.get(Snake.class);
+        mapOfCharacteristics.put(Snake.class, new HashMap<>());
+        characteristics = mapOfCharacteristics.get(Snake.class);
         setDefaultcharacteristics(characteristics, 2, 123, 1, 0.3, 15);
 
-        mapCountEntityInLocation.put(Fox.class, new HashMap<>());
-        characteristics = mapCountEntityInLocation.get(Fox.class);
+        mapOfCharacteristics.put(Fox.class, new HashMap<>());
+        characteristics = mapOfCharacteristics.get(Fox.class);
         setDefaultcharacteristics(characteristics, 4, 50, 3, 1, 8);
 
-        mapCountEntityInLocation.put(Bear.class, new HashMap<>());
-        characteristics = mapCountEntityInLocation.get(Bear.class);
+        mapOfCharacteristics.put(Bear.class, new HashMap<>());
+        characteristics = mapOfCharacteristics.get(Bear.class);
         setDefaultcharacteristics(characteristics, 250, 7, 2, 38, 15);
 
-        mapCountEntityInLocation.put(Eagle.class, new HashMap<>());
-        characteristics = mapCountEntityInLocation.get(Eagle.class);
+        mapOfCharacteristics.put(Eagle.class, new HashMap<>());
+        characteristics = mapOfCharacteristics.get(Eagle.class);
         setDefaultcharacteristics(characteristics, 6, 166, 4, 1, 5);
 
-        mapCountEntityInLocation.put(Horse.class, new HashMap<>());
-        characteristics = mapCountEntityInLocation.get(Horse.class);
+        mapOfCharacteristics.put(Horse.class, new HashMap<>());
+        characteristics = mapOfCharacteristics.get(Horse.class);
         setDefaultcharacteristics(characteristics, 300, 23, 3, 45, 5);
 
-        mapCountEntityInLocation.put(Deer.class, new HashMap<>());
-        characteristics = mapCountEntityInLocation.get(Deer.class);
+        mapOfCharacteristics.put(Deer.class, new HashMap<>());
+        characteristics = mapOfCharacteristics.get(Deer.class);
         setDefaultcharacteristics(characteristics, 170, 41, 3, 45, 5);
 
-        mapCountEntityInLocation.put(Rabbit.class, new HashMap<>());
-        characteristics = mapCountEntityInLocation.get(Rabbit.class);
+        mapOfCharacteristics.put(Rabbit.class, new HashMap<>());
+        characteristics = mapOfCharacteristics.get(Rabbit.class);
         setDefaultcharacteristics(characteristics, 3, 750, 3, 26, 4);
 
-        mapCountEntityInLocation.put(Hamster.class, new HashMap<>());
-        characteristics = mapCountEntityInLocation.get(Hamster.class);
+        mapOfCharacteristics.put(Hamster.class, new HashMap<>());
+        characteristics = mapOfCharacteristics.get(Hamster.class);
         setDefaultcharacteristics(characteristics, 0.03, 10000, 1, 0.0075, 3);
 
-        mapCountEntityInLocation.put(Goat.class, new HashMap<>());
-        characteristics = mapCountEntityInLocation.get(Goat.class);
+        mapOfCharacteristics.put(Goat.class, new HashMap<>());
+        characteristics = mapOfCharacteristics.get(Goat.class);
         setDefaultcharacteristics(characteristics, 65, 107, 1, 10, 5);
 
-        mapCountEntityInLocation.put(Sheep.class, new HashMap<>());
-        characteristics = mapCountEntityInLocation.get(Sheep.class);
+        mapOfCharacteristics.put(Sheep.class, new HashMap<>());
+        characteristics = mapOfCharacteristics.get(Sheep.class);
         setDefaultcharacteristics(characteristics, 45, 156, 1, 7, 5);
 
-        mapCountEntityInLocation.put(Kangaroo.class, new HashMap<>());
-        characteristics = mapCountEntityInLocation.get(Kangaroo.class);
+        mapOfCharacteristics.put(Kangaroo.class, new HashMap<>());
+        characteristics = mapOfCharacteristics.get(Kangaroo.class);
         setDefaultcharacteristics(characteristics, 47, 149, 2, 7, 8);
 
-        mapCountEntityInLocation.put(Cow.class, new HashMap<>());
-        characteristics = mapCountEntityInLocation.get(Cow.class);
+        mapOfCharacteristics.put(Cow.class, new HashMap<>());
+        characteristics = mapOfCharacteristics.get(Cow.class);
         setDefaultcharacteristics(characteristics, 350, 20, 1, 53, 4);
 
-        mapCountEntityInLocation.put(Duck.class, new HashMap<>());
-        characteristics = mapCountEntityInLocation.get(Duck.class);
+        mapOfCharacteristics.put(Duck.class, new HashMap<>());
+        characteristics = mapOfCharacteristics.get(Duck.class);
         setDefaultcharacteristics(characteristics, 1, 500, 1, 0.15, 4);
 
-        mapCountEntityInLocation.put(Caterpillar.class, new HashMap<>());
-        characteristics = mapCountEntityInLocation.get(Caterpillar.class);
+        mapOfCharacteristics.put(Caterpillar.class, new HashMap<>());
+        characteristics = mapOfCharacteristics.get(Caterpillar.class);
         setDefaultcharacteristics(characteristics, 0.01,10000, 1, 0.0025,  1);
 
-        mapCountEntityInLocation.put(Grass.class, new HashMap<>());
-        characteristics = mapCountEntityInLocation.get(Grass.class);
+        mapOfCharacteristics.put(Grass.class, new HashMap<>());
+        characteristics = mapOfCharacteristics.get(Grass.class);
         setDefaultcharacteristics(characteristics, 1, 10000, 0, 0, 0);
-
 
     }
 
-    private void setDefaultcharacteristics(Map characteristics, double weight, int maxCountInLocation, double speed, double countNeddedFood, double countHungryMove){
+    private void setDefaultcharacteristics(Map characteristics, double weight, int maxCountInLocation, int speed, double countNeddedFood, double countHungryMove){
         characteristics.put(Entity.Characteristics.WEIGHT,              weight);
         characteristics.put(Entity.Characteristics.MAXCOUNTINLOCATION,  maxCountInLocation);
         characteristics.put(Entity.Characteristics.SPEED,               speed);
@@ -156,38 +163,139 @@ public class Island implements Runnable{
         characteristics.put(Entity.Characteristics.COUNTHUNGRYMOVE,     countHungryMove);
     }
 
-    public void setMapCountEntityInLocation(Map mapCountEntityInLocation){
-       this.mapCountEntityInLocation = mapCountEntityInLocation;
+    public void setDefaultMapOfProbabilityOfConsumption(){
+
+        Map probabilityOfConsumption;
+
+        MapProbabilityOfConsumption.put(Wolf.class, new HashMap<>());
+        probabilityOfConsumption = MapProbabilityOfConsumption.get(Wolf.class);
+        setDefaultProbabilityOfConsumption(probabilityOfConsumption, 0,10,10,0,10,30,40,70,90,60,70,20,30,80,0,0);
+
+        MapProbabilityOfConsumption.put(Snake.class, new HashMap<>());
+        probabilityOfConsumption = MapProbabilityOfConsumption.get(Snake.class);
+        setDefaultProbabilityOfConsumption(probabilityOfConsumption, 0,0,0,0,0,0,0,50,90,0,0,0,0,50,90,0);
+
+        MapProbabilityOfConsumption.put(Fox.class, new HashMap<>());
+        probabilityOfConsumption = MapProbabilityOfConsumption.get(Fox.class);
+        setDefaultProbabilityOfConsumption(probabilityOfConsumption, 0,20,0,0,10,0,5,70,90,20,20,5,0,80,0,0);
+
+        MapProbabilityOfConsumption.put(Bear.class, new HashMap<>());
+        probabilityOfConsumption = MapProbabilityOfConsumption.get(Bear.class);
+        setDefaultProbabilityOfConsumption(probabilityOfConsumption, 20,30,20,0,30,70,80,80,90,70,70,60,75,80,0,0);
+
+        MapProbabilityOfConsumption.put(Eagle.class, new HashMap<>());
+        probabilityOfConsumption = MapProbabilityOfConsumption.get(Eagle.class);
+        setDefaultProbabilityOfConsumption(probabilityOfConsumption, 0,50,0,0,0,0,0,90,90,0,0,0,0,85,20,0);
+
+        MapProbabilityOfConsumption.put(Horse.class, new HashMap<>());
+        probabilityOfConsumption = MapProbabilityOfConsumption.get(Horse.class);
+        setDefaultProbabilityOfConsumption(probabilityOfConsumption, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100);
+
+        MapProbabilityOfConsumption.put(Deer.class, new HashMap<>());
+        probabilityOfConsumption = MapProbabilityOfConsumption.get(Deer.class);
+        setDefaultProbabilityOfConsumption(probabilityOfConsumption, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100);
+
+        MapProbabilityOfConsumption.put(Rabbit.class, new HashMap<>());
+        probabilityOfConsumption = MapProbabilityOfConsumption.get(Rabbit.class);
+        setDefaultProbabilityOfConsumption(probabilityOfConsumption, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100);
+
+        MapProbabilityOfConsumption.put(Hamster.class, new HashMap<>());
+        probabilityOfConsumption = MapProbabilityOfConsumption.get(Hamster.class);
+        setDefaultProbabilityOfConsumption(probabilityOfConsumption, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100);
+
+        MapProbabilityOfConsumption.put(Goat.class, new HashMap<>());
+        probabilityOfConsumption = MapProbabilityOfConsumption.get(Goat.class);
+        setDefaultProbabilityOfConsumption(probabilityOfConsumption, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100);
+
+        MapProbabilityOfConsumption.put(Sheep.class, new HashMap<>());
+        probabilityOfConsumption = MapProbabilityOfConsumption.get(Sheep.class);
+        setDefaultProbabilityOfConsumption(probabilityOfConsumption, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100);
+
+        MapProbabilityOfConsumption.put(Kangaroo.class, new HashMap<>());
+        probabilityOfConsumption = MapProbabilityOfConsumption.get(Kangaroo.class);
+        setDefaultProbabilityOfConsumption(probabilityOfConsumption, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100);
+
+        MapProbabilityOfConsumption.put(Cow.class, new HashMap<>());
+        probabilityOfConsumption = MapProbabilityOfConsumption.get(Cow.class);
+        setDefaultProbabilityOfConsumption(probabilityOfConsumption, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100);
+
+        MapProbabilityOfConsumption.put(Duck.class, new HashMap<>());
+        probabilityOfConsumption = MapProbabilityOfConsumption.get(Duck.class);
+        setDefaultProbabilityOfConsumption(probabilityOfConsumption, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,50,100);
+
+        MapProbabilityOfConsumption.put(Caterpillar.class, new HashMap<>());
+        probabilityOfConsumption = MapProbabilityOfConsumption.get(Caterpillar.class);
+        setDefaultProbabilityOfConsumption(probabilityOfConsumption, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,50,100);
+
     }
 
-    public void setCountEntityInLocationForClass(Class<? extends Entity> entityClass, Map characteristics){
-        mapCountEntityInLocation.put(entityClass, characteristics);
+    private void setDefaultProbabilityOfConsumption(Map probabilityOfConsumption, int...probability){
+        probabilityOfConsumption.put(Wolf.class,        probability[0]);
+        probabilityOfConsumption.put(Snake.class,       probability[1]);
+        probabilityOfConsumption.put(Fox.class,         probability[2]);
+        probabilityOfConsumption.put(Bear.class,        probability[3]);
+        probabilityOfConsumption.put(Eagle.class,       probability[4]);
+        probabilityOfConsumption.put(Horse.class,       probability[5]);
+        probabilityOfConsumption.put(Deer.class,        probability[6]);
+        probabilityOfConsumption.put(Rabbit.class,      probability[7]);
+        probabilityOfConsumption.put(Hamster.class,     probability[8]);
+        probabilityOfConsumption.put(Goat.class,        probability[9]);
+        probabilityOfConsumption.put(Sheep.class,       probability[10]);
+        probabilityOfConsumption.put(Kangaroo.class,    probability[11]);
+        probabilityOfConsumption.put(Cow.class,         probability[12]);
+        probabilityOfConsumption.put(Duck.class,        probability[13]);
+        probabilityOfConsumption.put(Caterpillar.class, probability[14]);
+        probabilityOfConsumption.put(Grass.class,       probability[15]);
+    }
+    public void setMapOfCharacteristics(Map mapOfCharacteristics){
+       this.mapOfCharacteristics = mapOfCharacteristics;
     }
 
-    public Map getMapCountEntityInLocation(){
-        return mapCountEntityInLocation;
+    public void setCharacteristicsForClass(Class<? extends Entity> entityClass, Map characteristics){
+        mapOfCharacteristics.put(entityClass, characteristics);
     }
 
-    public Map getEntryCountEntityInLocationForClass(Class<? extends Entity> entityClass){
-        return mapCountEntityInLocation.get(entityClass);
+    public Map getMapOfCharacteristics(){
+        return mapOfCharacteristics;
+    }
+
+    public Map getEntryCharacteristicsForClass(Class<? extends Entity> entityClass){
+        return mapOfCharacteristics.get(entityClass);
     }
 
     public long getDays(){
         return days;
     }
 
+    public Location getLocation(int locationH, int locationW){
+        return locations.get(locationH).get(locationW);
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
     @Override
     public void run() {
         days++;
-        for (Future<String> stringFuture : listOfFuture) {
-            try {
-                System.out.println(stringFuture.get());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
+        String statisticString = "День: " + days + " Общее количество сущностей: " + Entity.getCoutEntities();
+        System.out.println(statisticString);
+        statisticString = "";
+        for (List<Location> stringlocations : locations) {
+            for (Location location : stringlocations) {
+                statisticString+=location.getEntitiesSize() + "; ";
             }
-
+            System.out.println(statisticString);
+            statisticString = "";
+        }
+        try {
+            listOfFuture = cachedThreadPool.invokeAll(listOfLocation);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 }

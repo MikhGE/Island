@@ -7,15 +7,16 @@ import IslandPackage.items.plants.Plant;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class Location implements Callable<String>, Comparable {
+public class Location implements Callable<Location>, Comparable {
 
     private final Island island;
     private final int locationH;
     private final int locationW;
     private final long maxEntityInLocation;
-    private final ArrayList<Entity> entities;
+    private final CopyOnWriteArrayList<Entity> entities;
     public final Object entitiesLock = new Object();
 
     public Location(int maxEntityInLocation, Island island, int locationH, int locationW) {
@@ -23,12 +24,13 @@ public class Location implements Callable<String>, Comparable {
         this.locationH              = locationH;
         this.locationW              = locationW;
         this.maxEntityInLocation    = maxEntityInLocation;
-        this.entities               = new ArrayList<>();
+        this.entities               = new CopyOnWriteArrayList<>();
         initializeLocation();
     }
 
     @Override
-    public String call() throws Exception {
+    public Location call() throws Exception {
+
         for (Entity entity : entities) {
             if(Animal.class.isAssignableFrom(entity.getClass())){
                 int whatToDo = ThreadLocalRandom.current().nextInt(4);
@@ -37,7 +39,7 @@ public class Location implements Callable<String>, Comparable {
                         ((Animal) entity).eat();
                         break;
                     case (1):
-                        Location newLocation = calculateNewLocation();
+                        Location newLocation = calculateNewLocation(entity.getClass());
                         ((Animal) entity).move(newLocation);
                         break;
                     case (2):
@@ -54,7 +56,8 @@ public class Location implements Callable<String>, Comparable {
                 ((Plant) entity).growUp();
             }
         }
-        return "Все нормально";
+
+        return this;
     }
 
     @Override
@@ -72,7 +75,7 @@ public class Location implements Callable<String>, Comparable {
 
     private void initializeLocation() {
         List<Class<? extends Entity>> classes = island.getClasses();
-        Map<Class<? extends Entity>, Map<Entity.Characteristics, ? extends Number>> mapCountEntityInLocation = island.getMapCountEntityInLocation();
+        Map<Class<? extends Entity>, Map<Entity.Characteristics, ? extends Number>> mapCountEntityInLocation = island.getMapOfCharacteristics();
         int countClasses = classes.size();
         Random randomIndex = new Random();
         for (int i = 0; i < 3; i++) {
@@ -122,8 +125,39 @@ public class Location implements Callable<String>, Comparable {
         return locationW;
     }
 
-    private Location calculateNewLocation(){
-        
+
+    private Location calculateNewLocation(Class clazz){
+        Map<Class<? extends Entity>, Map<Entity.Characteristics, ? extends Number>> mapCountEntityInLocation = island.getMapOfCharacteristics();
+        Map<Entity.Characteristics, ? extends Number> characteristicsMap = mapCountEntityInLocation.get(clazz);
+        int speed = (int) characteristicsMap.get(Entity.Characteristics.SPEED);
+        int way = ThreadLocalRandom.current().nextInt(4);
+        int currentMoveSpeed = ThreadLocalRandom.current().nextInt(speed) + 1;
+        int newLocationW;
+        int newLocationH;
+        switch (way){
+            case(0):
+                //Лево
+                newLocationW = getLocationW() - currentMoveSpeed;
+                newLocationW = (newLocationW<0)?0:newLocationW;
+                return island.getLocation(getLocationH(), newLocationW);
+            case(1):
+                //Вверх
+                newLocationH = getLocationH() - currentMoveSpeed;
+                newLocationH = (newLocationH<0)?0:newLocationH;
+                return island.getLocation(newLocationH, getLocationW());
+            case (2):
+                //Право
+                newLocationW = getLocationW() + currentMoveSpeed;
+                newLocationW = (newLocationW>island.getWidth()-1)?island.getWidth()-1:newLocationW;
+                return island.getLocation(getLocationH(), newLocationW);
+            case (3):
+                //Вниз
+                newLocationH = getLocationH() + currentMoveSpeed;
+                newLocationH = (newLocationH>island.getHeight()-1)?island.getHeight()-1:newLocationH;
+                return island.getLocation(newLocationH, getLocationW());
+            default:
+                break;
+        }
         return null;
     }
     public void moveEntity(Entity entity){
@@ -134,4 +168,11 @@ public class Location implements Callable<String>, Comparable {
         if(entities.contains(entity))
             entities.remove(entity);
     }
+
+    @Override
+    public String toString() {
+        return "Location{" + locationH + ":" + locationW + '}';
+    }
+
+
 }
