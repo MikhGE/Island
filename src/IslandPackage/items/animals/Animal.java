@@ -3,6 +3,8 @@ package IslandPackage.items.animals;
 import IslandPackage.items.Entity;
 import IslandPackage.items.Location;
 
+import java.util.*;
+
 public abstract class Animal extends Entity implements AnimalInterface {
 
     @Override
@@ -31,12 +33,36 @@ public abstract class Animal extends Entity implements AnimalInterface {
 
     @Override
     public void eat() {
+
+        //Получаем текущую статистику локации
+        Set<Class<? extends Entity>> setOfClassStatistic = this.getLocation()
+                                                                .getStatisticOfLocation()
+                                                                .keySet();
+        //Получаем карту вероятностей потребления
+        Map<Class<? extends Entity>, Integer> probabilityOfConsumption = this.getIsland()
+                                                                            .getMapProbabilityOfConsumption()
+                                                                            .get(this.getClass());
+
+        //Получаем максимально вероятную жертву
+        Optional<Map.Entry<Class<? extends Entity>, Integer>> entrySetForEat = probabilityOfConsumption.entrySet().stream()
+                .filter(e->!e.getKey().equals(this.getClass()))
+                .filter(e->e.getValue()!=0)
+                .filter(e->setOfClassStatistic.contains(e.getKey()))
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).findFirst();
+
+        //Если животное хищник, то нужно убить жертву, поглатить его плоть и восполнить уровень сытости
         if(Predator.class.isAssignableFrom(this.getClass()))
         {
-            System.out.println(this.getClass().getSimpleName() + " поел!");
+
+            if(!entrySetForEat.isEmpty()&&entrySetForEat.get().getValue()>0)
+                System.out.println(this.getClass().getSimpleName() + " поел " + entrySetForEat.get().getKey().getSimpleName() + "!");
+//
         }
         else{
-            System.out.println(this.getClass().getSimpleName() + " поел!");
+            if(!entrySetForEat.isEmpty()&&entrySetForEat.get().getValue()>0)
+                System.out.println(this.getClass().getSimpleName() + " поел " + entrySetForEat.get().getKey().getSimpleName() + "!");
+//            else
+//                System.out.println(this.getClass().getSimpleName() + " не ест " + entrySetForEat.get().getKey().getSimpleName() + "!");
         }
     }
 }

@@ -8,14 +8,14 @@ public abstract class Entity {
 
     private static long countEntities;
     private static final ConcurrentHashMap<Class<? extends Entity>, Integer> statistic =  new ConcurrentHashMap();
-    private final Object lockForCoutEntities = new Object();
+    private final Object lockForCountEntities = new Object();
     private boolean isDead = false;
     private double weight;
     private Location location;
     private Island island;
 
     public Entity() {
-        synchronized (lockForCoutEntities){
+        synchronized (lockForCountEntities){
             countEntities++;
             if(statistic.containsKey(this.getClass())){
                 statistic.put(this.getClass(),statistic.get(this.getClass())+1);
@@ -23,10 +23,14 @@ public abstract class Entity {
             else{
                 statistic.put(this.getClass(), 1);
             }
+            if(statistic.containsKey(this.getClass()))
+                statistic.put(this.getClass(), statistic.get(this.getClass()) + 1);
+            else
+                statistic.put(this.getClass(), 1);
         }
     }
 
-    public static long getCoutEntities(){
+    public static long getCountEntities(){
         return countEntities;
     }
 
@@ -64,8 +68,10 @@ public abstract class Entity {
     public void setDead(boolean dead) {
         isDead = dead;
         if (isDead){
-            synchronized (lockForCoutEntities){
+            synchronized (lockForCountEntities){
                 countEntities--;
+                if(statistic.containsKey(this.getClass())&&statistic.get(this.getClass())>0)
+                    statistic.put(this.getClass(), statistic.get(this.getClass()) - 1);
             }
         }
     }

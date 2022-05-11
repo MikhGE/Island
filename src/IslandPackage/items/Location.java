@@ -18,6 +18,7 @@ public class Location implements Callable<Location>, Comparable {
     private final long maxEntityInLocation;
     private final CopyOnWriteArrayList<Entity> entities;
     public final Object entitiesLock = new Object();
+    private Map<Class<? extends Entity>, Integer> statisticOfLocation = new HashMap<>();
 
     public Location(int maxEntityInLocation, Island island, int locationH, int locationW) {
         this.island                 = island;
@@ -30,6 +31,8 @@ public class Location implements Callable<Location>, Comparable {
 
     @Override
     public Location call() throws Exception {
+
+        setStatisticOfLocation();
 
         for (Entity entity : entities) {
             if(Animal.class.isAssignableFrom(entity.getClass())){
@@ -58,6 +61,22 @@ public class Location implements Callable<Location>, Comparable {
         }
 
         return this;
+    }
+
+    public void setStatisticOfLocation(){
+        statisticOfLocation = new HashMap<>();
+        for (Entity entity : entities) {
+            if(statisticOfLocation.containsKey(entity.getClass())){
+                statisticOfLocation.put(entity.getClass(), statisticOfLocation.get(entity.getClass()) + 1);
+            }
+            else {
+                statisticOfLocation.put(entity.getClass(), 1);
+            }
+        }
+    }
+
+    public Map<Class<? extends Entity>, Integer> getStatisticOfLocation(){
+        return statisticOfLocation;
     }
 
     @Override
@@ -93,6 +112,7 @@ public class Location implements Callable<Location>, Comparable {
                 try {
                     Entity entity = (Entity) Class.forName(entityClass.getName()).getDeclaredConstructor().newInstance();
                     entity.setLocation(this);
+                    entity.setIsland(island);
                     entities.add(entity);
                 } catch (InstantiationException e) {
                     e.printStackTrace();
@@ -124,7 +144,6 @@ public class Location implements Callable<Location>, Comparable {
     public int getLocationW() {
         return locationW;
     }
-
 
     private Location calculateNewLocation(Class clazz){
         Map<Class<? extends Entity>, Map<Entity.Characteristics, ? extends Number>> mapCountEntityInLocation = island.getMapOfCharacteristics();
@@ -160,6 +179,7 @@ public class Location implements Callable<Location>, Comparable {
         }
         return null;
     }
+
     public void moveEntity(Entity entity){
         entities.add(entity);
     }

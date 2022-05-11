@@ -5,10 +5,7 @@ import IslandPackage.items.Location;
 import IslandPackage.items.animals.*;
 import IslandPackage.items.plants.Grass;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 
 public class Island implements Runnable{
@@ -44,6 +41,7 @@ public class Island implements Runnable{
         this.width  = width;
         initializeClasses();
         setDefaultMapOfCharacteristics();
+        setDefaultMapOfProbabilityOfConsumption();
         cachedThreadPool = Executors.newCachedThreadPool();
         this.locations = new ArrayList<>(this.height);
         for (int h = 0; h < this.height; h++) {
@@ -247,6 +245,14 @@ public class Island implements Runnable{
         probabilityOfConsumption.put(Caterpillar.class, probability[14]);
         probabilityOfConsumption.put(Grass.class,       probability[15]);
     }
+
+    public void setMapOfProbabilityOfConsumption(Map MapProbabilityOfConsumption){
+        this.MapProbabilityOfConsumption = MapProbabilityOfConsumption;
+    }
+
+    public Map<Class<? extends Entity>, Map<Class<? extends Entity>, Integer>> getMapProbabilityOfConsumption(){
+        return this.MapProbabilityOfConsumption;
+    }
     public void setMapOfCharacteristics(Map mapOfCharacteristics){
        this.mapOfCharacteristics = mapOfCharacteristics;
     }
@@ -282,15 +288,22 @@ public class Island implements Runnable{
     @Override
     public void run() {
         days++;
-        String statisticString = "День: " + days + " Общее количество сущностей: " + Entity.getCoutEntities();
+        String statisticString = "День: " + days + " Общее количество сущностей: " + Entity.getCountEntities();
         System.out.println(statisticString);
         statisticString = "";
+        String statisticOfLocation = "";
         for (List<Location> stringlocations : locations) {
             for (Location location : stringlocations) {
                 statisticString+=location.getEntitiesSize() + "; ";
+                for (Map.Entry<Class<? extends Entity>, Integer> entrySetOfStatistic : location.getStatisticOfLocation().entrySet()) {
+                    statisticOfLocation+="" + entrySetOfStatistic.getKey().getSimpleName() + "=" + entrySetOfStatistic.getValue() + "; ";
+                }
+                statisticOfLocation+="\n";
             }
             System.out.println(statisticString);
+            System.out.println(statisticOfLocation);
             statisticString = "";
+            statisticOfLocation = "";
         }
         try {
             listOfFuture = cachedThreadPool.invokeAll(listOfLocation);
