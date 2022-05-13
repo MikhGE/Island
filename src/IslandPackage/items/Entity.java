@@ -2,6 +2,7 @@ package IslandPackage.items;
 
 import IslandPackage.Island;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class Entity {
@@ -74,5 +75,11 @@ public abstract class Entity {
                     statistic.put(this.getClass(), statistic.get(this.getClass()) - 1);
             }
         }
+    }
+
+    public void initializeEntity(){
+        Map<Class<? extends Entity>, Map<Characteristics, ? extends Number>> mapOfCharacteristics = island.getMapOfCharacteristics();
+        Map<Characteristics, ? extends Number> characteristics = mapOfCharacteristics.get(this.getClass());
+        setWeight((double) characteristics.get(Characteristics.WEIGHT));
     }
 }

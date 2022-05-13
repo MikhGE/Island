@@ -10,7 +10,7 @@ public class IslandApplication {
 
         ScheduledExecutorService sheduledService = Executors.newScheduledThreadPool(1);
         Island island = new Island(2, 2);
-        //sheduledService.scheduleAtFixedRate(island,5, 5, TimeUnit.SECONDS);
+        sheduledService.scheduleAtFixedRate(island,5, 5, TimeUnit.SECONDS);
 
     }
 

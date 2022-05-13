@@ -35,6 +35,7 @@ public class Location implements Callable<Location>, Comparable {
         setStatisticOfLocation();
 
         for (Entity entity : entities) {
+            if(!entity.isDead()){
             if(Animal.class.isAssignableFrom(entity.getClass())){
                 int whatToDo = ThreadLocalRandom.current().nextInt(4);
                 switch (whatToDo){
@@ -49,7 +50,7 @@ public class Location implements Callable<Location>, Comparable {
                         ((Animal) entity).multiply();
                         break;
                     case (3):
-                        ((Animal) entity).die();
+                        ((Animal) entity).loseSatietyPoints();
                         break;
                     default:
                         continue;
@@ -57,6 +58,7 @@ public class Location implements Callable<Location>, Comparable {
             }
             else if(Plant.class.isAssignableFrom(entity.getClass())){
                 ((Plant) entity).growUp();
+            }
             }
         }
 
@@ -113,16 +115,9 @@ public class Location implements Callable<Location>, Comparable {
                     Entity entity = (Entity) Class.forName(entityClass.getName()).getDeclaredConstructor().newInstance();
                     entity.setLocation(this);
                     entity.setIsland(island);
+                    entity.initializeEntity();
                     entities.add(entity);
-                } catch (InstantiationException e) {
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                } catch (InvocationTargetException e) {
-                    e.printStackTrace();
-                } catch (NoSuchMethodException e) {
-                    e.printStackTrace();
-                } catch (ClassNotFoundException e) {
+                } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException e) {
                     e.printStackTrace();
                 }
             }
@@ -189,6 +184,9 @@ public class Location implements Callable<Location>, Comparable {
             entities.remove(entity);
     }
 
+    public CopyOnWriteArrayList<Entity> getEntities(){
+        return entities;
+    }
     @Override
     public String toString() {
         return "Location{" + locationH + ":" + locationW + '}';

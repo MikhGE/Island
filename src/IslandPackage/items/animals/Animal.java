@@ -7,6 +7,9 @@ import java.util.*;
 
 public abstract class Animal extends Entity implements AnimalInterface {
 
+    private double countNeddedFood;
+    private int countHungryMove;
+
     @Override
     public String toString() {
         return getClass().getSimpleName();
@@ -54,15 +57,48 @@ public abstract class Animal extends Entity implements AnimalInterface {
         if(Predator.class.isAssignableFrom(this.getClass()))
         {
 
-            if(!entrySetForEat.isEmpty()&&entrySetForEat.get().getValue()>0)
-                System.out.println(this.getClass().getSimpleName() + " поел " + entrySetForEat.get().getKey().getSimpleName() + "!");
+            if(!entrySetForEat.isEmpty()&&entrySetForEat.get().getValue()>0){
+                Optional<Entity> food = this.getLocation().getEntities().stream().filter(entity -> entity.getClass().equals(entrySetForEat.get().getKey())&&!entity.isDead()).findFirst();
+                if(!food.isEmpty()){
+                    food.get().setDead(true);
+                }
+            }
+
 //
         }
         else{
-            if(!entrySetForEat.isEmpty()&&entrySetForEat.get().getValue()>0)
-                System.out.println(this.getClass().getSimpleName() + " поел " + entrySetForEat.get().getKey().getSimpleName() + "!");
-//            else
-//                System.out.println(this.getClass().getSimpleName() + " не ест " + entrySetForEat.get().getKey().getSimpleName() + "!");
-        }
+            if(!entrySetForEat.isEmpty()&&entrySetForEat.get().getValue()>0){
+
+            }
+       }
+    }
+
+    @Override
+    public void initializeEntity() {
+        super.initializeEntity();
+        Map<Class<? extends Entity>, Map<Characteristics, ? extends Number>> mapOfCharacteristics = this.getIsland().getMapOfCharacteristics();
+        Map<Characteristics, ? extends Number> characteristics = mapOfCharacteristics.get(this.getClass());
+        setCountNeddedFood((double) characteristics.get(Characteristics.COUNTNEDDEDFOOD));
+    }
+
+    public double getCountNeddedFood() {
+        return countNeddedFood;
+    }
+
+    public void setCountNeddedFood(double countNeddedFood) {
+        this.countNeddedFood = countNeddedFood;
+    }
+
+    public int getCountHungryMove() {
+        return countHungryMove;
+    }
+
+    public void setCountHungryMove(int countHungryMove) {
+        this.countHungryMove = countHungryMove;
+    }
+
+    public void loseSatietyPoints(){
+        if(countNeddedFood > 0.0)
+            countNeddedFood--;
     }
 }
