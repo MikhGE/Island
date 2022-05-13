@@ -126,7 +126,7 @@ public class Location implements Callable<Location>, Comparable {
     }
 
     public long getEntitiesSize(){
-        return entities.size();
+        return entities.stream().filter(entity->!entity.isDead()).count();
     }
 
     public long getMaxEntityInLocation(){

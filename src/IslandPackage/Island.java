@@ -296,7 +296,7 @@ public class Island implements Runnable{
             for (Location location : stringlocations) {
                 statisticString+=location.getEntitiesSize() + "; ";
                 for (Map.Entry<Class<? extends Entity>, Integer> entrySetOfStatistic : location.getStatisticOfLocation().entrySet()) {
-                    statisticOfLocation+="" + entrySetOfStatistic.getKey().getSimpleName() + "=" + entrySetOfStatistic.getValue() + "; ";
+                    statisticOfLocation+="" + Entity.getUniCode(entrySetOfStatistic.getKey()) + " = " + entrySetOfStatistic.getValue() + " ; ";
                 }
                 statisticOfLocation+="\n";
             }

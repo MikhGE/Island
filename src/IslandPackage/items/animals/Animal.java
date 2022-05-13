@@ -18,7 +18,7 @@ public abstract class Animal extends Entity implements AnimalInterface {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName();
+        return Entity.getUniCode(getClass());
     }
 
     @Override
