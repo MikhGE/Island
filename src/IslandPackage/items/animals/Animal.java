@@ -7,8 +7,14 @@ import java.util.*;
 
 public abstract class Animal extends Entity implements AnimalInterface {
 
-    private double countNeddedFood;
-    private int countHungryMove;
+    private double  countNeddedFood;
+    private int     countHungryMove;
+    private int     countMoveForHungry;
+    private double  satietyStep;
+
+    public Animal() {
+
+    }
 
     @Override
     public String toString() {
@@ -74,11 +80,19 @@ public abstract class Animal extends Entity implements AnimalInterface {
     }
 
     @Override
+    public void die() {
+        setDead(true);
+    }
+
+    @Override
     public void initializeEntity() {
         super.initializeEntity();
         Map<Class<? extends Entity>, Map<Characteristics, ? extends Number>> mapOfCharacteristics = this.getIsland().getMapOfCharacteristics();
         Map<Characteristics, ? extends Number> characteristics = mapOfCharacteristics.get(this.getClass());
         setCountNeddedFood((double) characteristics.get(Characteristics.COUNTNEDDEDFOOD));
+        setCountHungryMove((int) characteristics.get(Characteristics.COUNTHUNGRYMOVE));
+        countMoveForHungry = (int) (getWeight()/getCountNeddedFood());
+        satietyStep = countNeddedFood/countMoveForHungry;
     }
 
     public double getCountNeddedFood() {
@@ -99,6 +113,13 @@ public abstract class Animal extends Entity implements AnimalInterface {
 
     public void loseSatietyPoints(){
         if(countNeddedFood > 0.0)
-            countNeddedFood--;
+            countNeddedFood-=satietyStep;
+        else {
+            if (countHungryMove>0){
+            countHungryMove--;
+            } else{
+                die();
+            }
+        }
     }
 }

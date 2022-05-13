@@ -89,7 +89,7 @@ public class Island implements Runnable{
 
         mapOfCharacteristics.put(Wolf.class, new HashMap<>());
         characteristics = mapOfCharacteristics.get(Wolf.class);
-        setDefaultcharacteristics(characteristics, 50, 30, 8, 3, 10);
+        setDefaultcharacteristics(characteristics, 50, 30, 3, 8, 10);
 
         mapOfCharacteristics.put(Snake.class, new HashMap<>());
         characteristics = mapOfCharacteristics.get(Snake.class);
@@ -113,7 +113,7 @@ public class Island implements Runnable{
 
         mapOfCharacteristics.put(Deer.class, new HashMap<>());
         characteristics = mapOfCharacteristics.get(Deer.class);
-        setDefaultcharacteristics(characteristics, 170, 41, 3, 45, 5);
+        setDefaultcharacteristics(characteristics, 170, 41, 3, 26, 4);
 
         mapOfCharacteristics.put(Rabbit.class, new HashMap<>());
         characteristics = mapOfCharacteristics.get(Rabbit.class);
@@ -153,7 +153,7 @@ public class Island implements Runnable{
 
     }
 
-    private void setDefaultcharacteristics(Map characteristics, double weight, int maxCountInLocation, int speed, double countNeddedFood, double countHungryMove){
+    private void setDefaultcharacteristics(Map characteristics, double weight, int maxCountInLocation, int speed, double countNeddedFood, int countHungryMove){
         characteristics.put(Entity.Characteristics.WEIGHT,              weight);
         characteristics.put(Entity.Characteristics.MAXCOUNTINLOCATION,  maxCountInLocation);
         characteristics.put(Entity.Characteristics.SPEED,               speed);
@@ -288,7 +288,7 @@ public class Island implements Runnable{
     @Override
     public void run() {
         days++;
-        String statisticString = "День: " + days + " Общее количество сущностей: " + Entity.getCountEntities();
+        String statisticString = "День: " + days + " Общее количество сущностей: " + Entity.getCountEntities() + " Общее количество умерших сущностей: " + Entity.getCountDeadEntities();
         System.out.println(statisticString);
         statisticString = "";
         String statisticOfLocation = "";

@@ -9,8 +9,4 @@ public class Caterpillar extends Herbivore{
 
     }
 
-    @Override
-    public void die() {
-
-    }
 }

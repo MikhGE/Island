@@ -10,8 +10,4 @@ public class Rabbit extends Herbivore{
 
     }
 
-    @Override
-    public void die() {
-
-    }
 }

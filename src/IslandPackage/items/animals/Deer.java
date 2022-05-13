@@ -10,8 +10,4 @@ public class Deer extends Herbivore{
 
     }
 
-    @Override
-    public void die() {
-
-    }
 }

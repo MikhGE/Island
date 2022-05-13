@@ -10,8 +10,4 @@ public class Wolf extends Predator {
 
     }
 
-    @Override
-    public void die() {
-
-    }
 }

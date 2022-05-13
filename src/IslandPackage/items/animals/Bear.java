@@ -10,8 +10,4 @@ public class Bear extends Predator{
 
     }
 
-    @Override
-    public void die() {
-
-    }
 }

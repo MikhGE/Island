@@ -9,8 +9,4 @@ public class Duck extends Herbivore{
 
     }
 
-    @Override
-    public void die() {
-
-    }
 }

@@ -8,8 +8,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class Entity {
 
     private static long countEntities;
+    private static long countDeadEntities;
     private static final ConcurrentHashMap<Class<? extends Entity>, Integer> statistic =  new ConcurrentHashMap();
-    private final Object lockForCountEntities = new Object();
+    private static final Object lockForCountEntities = new Object();
+    private static final Object lockForCountDeadEntities = new Object();
     private boolean isDead = false;
     private double weight;
     private Location location;
@@ -18,16 +20,11 @@ public abstract class Entity {
     public Entity() {
         synchronized (lockForCountEntities){
             countEntities++;
-            if(statistic.containsKey(this.getClass())){
-                statistic.put(this.getClass(),statistic.get(this.getClass())+1);
-            }
-            else{
-                statistic.put(this.getClass(), 1);
-            }
-            if(statistic.containsKey(this.getClass()))
+            if (statistic.containsKey(this.getClass())) {
                 statistic.put(this.getClass(), statistic.get(this.getClass()) + 1);
-            else
+            } else {
                 statistic.put(this.getClass(), 1);
+            }
         }
     }
 
@@ -35,6 +32,9 @@ public abstract class Entity {
         return countEntities;
     }
 
+    public static long getCountDeadEntities() {
+        return countDeadEntities;
+    }
 
     public enum Characteristics {WEIGHT, MAXCOUNTINLOCATION, SPEED, COUNTNEDDEDFOOD, COUNTHUNGRYMOVE}
 
@@ -74,6 +74,9 @@ public abstract class Entity {
                 if(statistic.containsKey(this.getClass())&&statistic.get(this.getClass())>0)
                     statistic.put(this.getClass(), statistic.get(this.getClass()) - 1);
             }
+            synchronized (lockForCountDeadEntities){
+                countDeadEntities++;
+            }
         }
     }
 
@@ -82,4 +85,5 @@ public abstract class Entity {
         Map<Characteristics, ? extends Number> characteristics = mapOfCharacteristics.get(this.getClass());
         setWeight((double) characteristics.get(Characteristics.WEIGHT));
     }
+
 }

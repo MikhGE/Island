@@ -10,8 +10,4 @@ public class Fox extends Predator {
 
     }
 
-    @Override
-    public void die() {
-
-    }
 }

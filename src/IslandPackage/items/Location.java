@@ -68,11 +68,12 @@ public class Location implements Callable<Location>, Comparable {
     public void setStatisticOfLocation(){
         statisticOfLocation = new HashMap<>();
         for (Entity entity : entities) {
-            if(statisticOfLocation.containsKey(entity.getClass())){
-                statisticOfLocation.put(entity.getClass(), statisticOfLocation.get(entity.getClass()) + 1);
-            }
-            else {
-                statisticOfLocation.put(entity.getClass(), 1);
+            if (!entity.isDead()) {
+                if (statisticOfLocation.containsKey(entity.getClass())) {
+                    statisticOfLocation.put(entity.getClass(), statisticOfLocation.get(entity.getClass()) + 1);
+                } else {
+                    statisticOfLocation.put(entity.getClass(), 1);
+                }
             }
         }
     }

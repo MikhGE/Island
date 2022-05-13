@@ -9,8 +9,4 @@ public class Kangaroo extends Herbivore{
 
     }
 
-    @Override
-    public void die() {
-
-    }
 }

@@ -10,8 +10,4 @@ public class Hamster extends Herbivore{
 
     }
 
-    @Override
-    public void die() {
-
-    }
 }

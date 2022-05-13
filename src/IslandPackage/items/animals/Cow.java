@@ -9,8 +9,4 @@ public class Cow extends Herbivore{
 
     }
 
-    @Override
-    public void die() {
-
-    }
 }
