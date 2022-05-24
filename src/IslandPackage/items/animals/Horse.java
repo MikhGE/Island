@@ -4,10 +4,4 @@ import IslandPackage.items.Location;
 
 public class Horse extends Herbivore {
 
-
-    @Override
-    public void multiply() {
-
-    }
-
 }

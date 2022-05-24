@@ -190,7 +190,12 @@ public class Location implements Callable<Location>, Comparable {
     }
     @Override
     public String toString() {
-        return "Location{" + locationH + ":" + locationW + '}';
+        Optional<Map.Entry<Class<? extends Entity>, Integer>> max = statisticOfLocation.entrySet().stream().max(new StatisticComporator());
+        String result = "U+2014";
+        if (!max.isEmpty()){
+            result = Entity.getUniCode(max.get().getKey());
+        }
+        return result;
     }
 
 

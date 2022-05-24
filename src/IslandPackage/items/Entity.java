@@ -12,9 +12,11 @@ public abstract class Entity {
 
     private static long countEntities;
     private static long countDeadEntities;
+    private static long countBornEntities;
     private static final ConcurrentHashMap<Class<? extends Entity>, Integer> statistic =  new ConcurrentHashMap();
     private static final Object lockForCountEntities = new Object();
     private static final Object lockForCountDeadEntities = new Object();
+    private static final Object lockForCountBornEntities = new Object();
     private boolean isDead = false;
     private double weight;
     private Location location;
@@ -49,13 +51,15 @@ public abstract class Entity {
                 statistic.put(this.getClass(), 1);
             }
         }
+        synchronized (lockForCountBornEntities){
+            countBornEntities++;
+        }
     }
-
-
 
     public static String getUniCode(Class<? extends Entity> classOfEntity){
         return mapOfUniCodes.get(classOfEntity);
     }
+
     public static long getCountEntities(){
         return countEntities;
     }
@@ -63,6 +67,7 @@ public abstract class Entity {
     public static long getCountDeadEntities() {
         return countDeadEntities;
     }
+    public static long getCountBornEntities(){return countBornEntities;};
 
     public enum Characteristics {WEIGHT, MAXCOUNTINLOCATION, SPEED, COUNTNEDDEDFOOD, COUNTHUNGRYMOVE}
 
@@ -108,6 +113,18 @@ public abstract class Entity {
         }
     }
 
+    public void setCountBornEntities(){
+        synchronized (lockForCountEntities){
+            countEntities++;
+            if(statistic.containsKey(this.getClass())&&statistic.get(this.getClass())>0)
+                statistic.put(this.getClass(), statistic.get(this.getClass()) + 1);
+            else
+                statistic.put(this.getClass(), 1);
+        }
+        synchronized (lockForCountBornEntities){
+            countBornEntities++;
+        }
+    }
     public void initializeEntity(){
         Map<Class<? extends Entity>, Map<Characteristics, ? extends Number>> mapOfCharacteristics = island.getMapOfCharacteristics();
         Map<Characteristics, ? extends Number> characteristics = mapOfCharacteristics.get(this.getClass());

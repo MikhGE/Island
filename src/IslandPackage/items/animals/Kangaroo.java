@@ -4,9 +4,4 @@ import IslandPackage.items.Location;
 
 public class Kangaroo extends Herbivore{
 
-    @Override
-    public void multiply() {
-
-    }
-
 }

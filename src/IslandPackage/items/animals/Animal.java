@@ -3,6 +3,7 @@ package IslandPackage.items.animals;
 import IslandPackage.items.Entity;
 import IslandPackage.items.Location;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 public abstract class Animal extends Entity implements AnimalInterface {
@@ -82,6 +83,26 @@ public abstract class Animal extends Entity implements AnimalInterface {
     @Override
     public void die() {
         setDead(true);
+    }
+
+    @Override
+    public void multiply() {
+        Optional<Entity> first = getLocation().getEntities().stream().filter(entity -> entity.getClass().equals(this.getClass())&&!entity.equals(this)).findFirst();
+        if(!first.isEmpty()){
+            synchronized (this.getLocation().entitiesLock){
+                try {
+                    Entity newEntity = (Entity) Class.forName(this.getClass().getName()).getDeclaredConstructor().newInstance();
+                    newEntity.setLocation(this.getLocation());
+                    newEntity.setIsland(this.getIsland());
+                    newEntity.initializeEntity();
+                    this.getLocation().getEntities().add(newEntity);
+                    newEntity.setCountBornEntities();
+                } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
     }
 
     @Override
