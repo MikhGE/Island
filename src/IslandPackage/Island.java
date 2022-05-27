@@ -52,6 +52,7 @@ public class Island implements Runnable{
                 listOfLocation.add(newLocation);
             }
         }
+        showIsland();
         try {
             listOfFuture = cachedThreadPool.invokeAll(listOfLocation);
         } catch (InterruptedException e) {
@@ -288,27 +289,25 @@ public class Island implements Runnable{
     @Override
     public void run() {
         days++;
-        String statisticString = "День: " + days + " Общее количество сущностей: " + Entity.getCountEntities() + " Общее количество умерших сущностей: " + Entity.getCountDeadEntities();
-        System.out.println(statisticString);
-        statisticString = "";
-        String statisticOfLocation = "";
-        for (List<Location> stringlocations : locations) {
-            for (Location location : stringlocations) {
-                statisticString+=location.getEntitiesSize() + "; ";
-                for (Map.Entry<Class<? extends Entity>, Integer> entrySetOfStatistic : location.getStatisticOfLocation().entrySet()) {
-                    statisticOfLocation+="" + entrySetOfStatistic.getKey().getSimpleName() + "=" + entrySetOfStatistic.getValue() + "; ";
-                }
-                statisticOfLocation+="\n";
-            }
-            System.out.println(statisticString);
-            System.out.println(statisticOfLocation);
-            statisticString = "";
-            statisticOfLocation = "";
-        }
+        showIsland();
         try {
             listOfFuture = cachedThreadPool.invokeAll(listOfLocation);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    public void showIsland(){
+        String statisticString = "День: " + days + " Общее количество сущностей: " + Entity.getCountEntities() + " Общее количество умерших сущностей: " + Entity.getCountDeadEntities() + " Общее количество родившихся сущностей:" + Entity.getCountBornEntities();
+        System.out.println(statisticString);
+        statisticString = "";
+        for (List<Location> stringlocations : locations) {
+            String statisticOfLocations = "";
+            for (Location location : stringlocations) {
+                statisticOfLocations+=location.toString();
+            }
+            statisticString+=statisticOfLocations + "\n";
+        }
+        System.out.println(statisticString);
     }
 }
