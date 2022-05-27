@@ -52,6 +52,7 @@ public class Island implements Runnable{
                 listOfLocation.add(newLocation);
             }
         }
+        showIsland();
         try {
             listOfFuture = cachedThreadPool.invokeAll(listOfLocation);
         } catch (InterruptedException e) {
@@ -288,6 +289,15 @@ public class Island implements Runnable{
     @Override
     public void run() {
         days++;
+        showIsland();
+        try {
+            listOfFuture = cachedThreadPool.invokeAll(listOfLocation);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void showIsland(){
         String statisticString = "День: " + days + " Общее количество сущностей: " + Entity.getCountEntities() + " Общее количество умерших сущностей: " + Entity.getCountDeadEntities() + " Общее количество родившихся сущностей:" + Entity.getCountBornEntities();
         System.out.println(statisticString);
         statisticString = "";
@@ -295,23 +305,9 @@ public class Island implements Runnable{
             String statisticOfLocations = "";
             for (Location location : stringlocations) {
                 statisticOfLocations+=location.toString();
-                //statisticString+=location.getEntitiesSize() + "; ";
-//                for (Map.Entry<Class<? extends Entity>, Integer> entrySetOfStatistic : location.getStatisticOfLocation().entrySet()) {
-//                    statisticOfLocation+="" + Entity.getUniCode(entrySetOfStatistic.getKey()) + " = " + entrySetOfStatistic.getValue() + " ; ";
-//                }
-//                statisticOfLocation+="\n";
             }
             statisticString+=statisticOfLocations + "\n";
-//            System.out.println(statisticString);
-//            System.out.println(statisticOfLocation);
-//            statisticString = "";
-//            statisticOfLocation = "";
         }
         System.out.println(statisticString);
-        try {
-            listOfFuture = cachedThreadPool.invokeAll(listOfLocation);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 }

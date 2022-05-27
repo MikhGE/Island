@@ -27,6 +27,7 @@ public class Location implements Callable<Location>, Comparable {
         this.maxEntityInLocation    = maxEntityInLocation;
         this.entities               = new CopyOnWriteArrayList<>();
         initializeLocation();
+        setStatisticOfLocation();
     }
 
     @Override
@@ -60,7 +61,17 @@ public class Location implements Callable<Location>, Comparable {
                 ((Plant) entity).growUp();
             }
             }
+            else {
+                entities.remove(entity);
+            }
         }
+        for (Entity entity : entities) {
+            if (entity.isDead()) {
+                entities.remove(entity);
+            }
+        }
+
+
 
         return this;
     }
@@ -188,6 +199,7 @@ public class Location implements Callable<Location>, Comparable {
     public CopyOnWriteArrayList<Entity> getEntities(){
         return entities;
     }
+
     @Override
     public String toString() {
         Optional<Map.Entry<Class<? extends Entity>, Integer>> max = statisticOfLocation.entrySet().stream().max(new StatisticComporator());
